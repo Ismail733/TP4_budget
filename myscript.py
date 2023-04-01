@@ -1,8 +1,33 @@
-import os
+import subprocess
 
-good_hash = 'e4cfc6f77ebbe2e23550ddab682316ab4ce1c03c'
-bad_hash = 'c1a4be04b972b6c17db242fc37752ad517c29402'
 
-os.system(f"git bisect start {bad_hash} {good_hash}")
+def test():
+    # Effectuez le test pour vérifier si le commit est bon ou mauvais.
+    # Renvoyez True si le commit est bon, False sinon.
+    pass
 
-os.system('git bisect run python manage.py test')
+
+def bisect():
+    # Démarrez le processus de bisect en spécifiant le commit initial qui est bon et mauvais.
+    subprocess.check_call(['git', 'bisect', 'start', 'good_commit', 'bad_commit'])
+
+    # Boucle jusqu'à ce que Git trouve le commit fautif.
+    while True:
+        # Obtenez le commit suivant à tester.
+        subprocess.check_call(['git', 'bisect', 'next'])
+
+        # Effectuez le test pour déterminer si le commit est bon ou mauvais.
+        result = test()
+
+        # Dites à Git si le commit est bon ou mauvais.
+        if result:
+            subprocess.check_call(['git', 'bisect', 'good'])
+        else:
+            subprocess.check_call(['git', 'bisect', 'bad'])
+
+        # Si Git a trouvé le commit fautif, sortez de la boucle.
+        if subprocess.check_output(['git', 'bisect', 'visualize']).strip() == b'':
+            break
+
+    # Affichez l'identifiant du commit fautif.
+    subprocess.check_call(['git', 'log', '-1', '--pretty=%H'])
